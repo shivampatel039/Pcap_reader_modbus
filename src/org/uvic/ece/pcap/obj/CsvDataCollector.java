@@ -13,12 +13,13 @@ public class CsvDataCollector {
 	private int       Refno;
 	private int	      WriteData;
 	private int 	  RespData;
-	
-	
+	private String	  Alarm_speed;
+	private String	  Alarm_water_level;
+
 
 	public CsvDataCollector(int[] sourceIP, int[] destIP, int sourcePort,int destPort,int ProtocolIdentif,
 							int UnitIdentif,int TransIdentif,int FuncCode,
-							int Refno,int WriteData, int RespData){
+							int Refno,int WriteData, int RespData, String Alarm_speed, String Alarm_water_level){
 		this.sourceIP = sourceIP;
 		this.destIP = destIP;
 		this.sourcePort = sourcePort;
@@ -30,10 +31,14 @@ public class CsvDataCollector {
 		this.Refno = Refno;
 		this.WriteData = WriteData;
 		this.RespData = RespData;
+		this.Alarm_speed = Alarm_speed;
+		this.Alarm_water_level = Alarm_water_level;
 		
 		
 	}
 	
+	
+
 	public int[] getsourceIP() {
         return sourceIP;
     }
@@ -121,11 +126,27 @@ public class CsvDataCollector {
 	public void setRespData(int respData) {
 		RespData = respData;
 	}
+	
+	public String getAlarm_speed() {
+		return Alarm_speed;
+	}
 
+	public void setAlarm_speed(String alarm_speed) {
+		Alarm_speed = alarm_speed;
+	}
+	
+	public String getAlarm_water_level() {
+		return Alarm_water_level;
+	}
+
+	public void setAlarm_water_level(String alarm_water_level) {
+		Alarm_water_level = alarm_water_level;
+	}
+	
 	public String toString() {
     	return  "\""+ sourceIP[0] + "."+ sourceIP[1] + "." + sourceIP[2] + "." + sourceIP[3] +"\""+ "," +"\""+ destIP[0] + "." + destIP[1] + "."+ destIP[2] + "."+ destIP[3] +"\""+ ","
     			+ "\""+ sourcePort + "\""+"," + "\""+destPort+"\""+","+ "\""+ProtocolIdentif + "\""+ "," + "\""+UnitIdentif+ "\""+ ","+ "\""+TransIdentif + "\""+ "," 
-    			+ "\""+ FuncCode + "\""+ "," + "\""+ Refno+ "\""+ "," + "\""+ WriteData + "\""+ ","+"\""+ RespData+ "\"";
+    			+ "\""+ FuncCode + "\""+ "," + "\""+ Refno+ "\""+ "," + "\""+ WriteData + "\""+ ","+"\""+ RespData+ "\"" + ","+ "\""+ Alarm_speed + "\"" + "," + "\""+ Alarm_water_level + "\"";
     } 
 	
 	

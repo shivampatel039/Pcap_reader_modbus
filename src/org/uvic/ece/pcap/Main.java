@@ -35,7 +35,7 @@ public class Main {
 
         try {
         	writeCsvHeader();
-            fileInputStream = new FileInputStream(new File("/Users/shivam/Meng project/PcapReader/1485200709.pcap"));
+            fileInputStream = new FileInputStream(new File("/Users/shivam/Meng project/PcapReader/Feb_07.pcap"));
             System.out.println("Input File: " + fileInputStream);
            // fileInputStream = new FileInputStream(new File(args[0]));
             
@@ -134,25 +134,36 @@ public class Main {
             int UnitIdentif = packetModbusHeaderObj.getUnitIdentifier();
             int TransIdentif = packetModbusHeaderObj.getTransactionIdentifier();
             int FuncCode = packetModbusBodyObj.getFunctionCode();
+            String Alarm_speed;
+            String Alarm_water_level;
             
             if (FuncCode == 0x03) {
             		ReadHoldRegsRequest readHoldRegsRequest = packetModbusBodyObj.getReadHoldRegsRequest();
             		if (null != readHoldRegsRequest) {
             			int Refno = readHoldRegsRequest.getRefno();
             			int RespData = 0;
+            			Alarm_speed = "No";
+            			Alarm_water_level = "No";
             			System.out.printf("\"%d\",\"%d.%d.%d.%d\",\"%d.%d.%d.%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\"\n", 
                          		num,source[0], source[1], source[2], source[3], dest[0], dest[1], dest[2], dest[3],Srcport, Destport,
                          		ProtocolIdentif, UnitIdentif,TransIdentif, FuncCode, Refno,RespData);
             			CsvDataCollector packet = new CsvDataCollector(source,dest,Srcport,Destport,ProtocolIdentif,UnitIdentif
-            														,TransIdentif,FuncCode,Refno,0,RespData);
+            														,TransIdentif,FuncCode,Refno,0,RespData,Alarm_speed,Alarm_water_level);
             			writepackets(packet);
             		} else {
             			
             		 ReadHoldRegsResponse readHoldRegsResp = packetModbusBodyObj.getReadHoldRegsResponse();
             		 int RespData = readHoldRegsResp.getRespData();
+            		 if ((RespData >= 95) || (RespData <= 5)) {
+            			  Alarm_water_level = "Yes";
+            			  Alarm_speed = "No";
+            		 } else {
+            			 Alarm_water_level = "No";
+            			 Alarm_speed = "No";
+            		 }
             		 int Refno = 0;
             		 CsvDataCollector packet = new CsvDataCollector(source,dest,Srcport,Destport,ProtocolIdentif,UnitIdentif
-								,TransIdentif,FuncCode,Refno,0,RespData);
+								,TransIdentif,FuncCode,Refno,0,RespData,Alarm_speed,Alarm_water_level);
             		 writepackets(packet);
             		 System.out.printf("\"%d\",\"%d.%d.%d.%d\",\"%d.%d.%d.%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\"\n", 
                      		num,source[0], source[1], source[2], source[3], dest[0], dest[1], dest[2], dest[3],Srcport, Destport,
@@ -164,17 +175,26 @@ public class Main {
             	if (null != writeMultipleRegistersRequest) {
             		int Refno = writeMultipleRegistersRequest.getRefno();
                 	int WriteData = writeMultipleRegistersRequest.getWriteData();
+                	if ((WriteData > 9) || (WriteData < 0)) {
+                		Alarm_speed = "Yes";
+                		Alarm_water_level = "No";
+                	} else {
+                		Alarm_speed = "No";
+                		Alarm_water_level = "No";
+                	}
                 	System.out.printf("\"%d\",\"%d.%d.%d.%d\",\"%d.%d.%d.%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\"\n", 
                     		num,source[0], source[1], source[2], source[3], dest[0], dest[1], dest[2], dest[3],Srcport, Destport,
                     		ProtocolIdentif, UnitIdentif,TransIdentif, FuncCode, Refno,WriteData);
                 	CsvDataCollector packet = new CsvDataCollector(source,dest,Srcport,Destport,ProtocolIdentif,UnitIdentif
-							,TransIdentif,FuncCode,Refno,WriteData,0);
+							,TransIdentif,FuncCode,Refno,WriteData,0,Alarm_speed,Alarm_water_level);
                 	writepackets(packet);
             	} else {
             		int Refno = 32210;
             		int WriteData = 0;
+            		Alarm_speed = "No";
+            		Alarm_water_level = "No";
             		CsvDataCollector packet = new CsvDataCollector(source,dest,Srcport,Destport,ProtocolIdentif,UnitIdentif
-																	,TransIdentif,FuncCode,Refno,WriteData,0);
+																	,TransIdentif,FuncCode,Refno,WriteData,0,Alarm_speed,Alarm_water_level);
                 	writepackets(packet);
             		System.out.printf("\"%d\",\"%d.%d.%d.%d\",\"%d.%d.%d.%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\",\"%d\"\n", 
                     		num,source[0], source[1], source[2], source[3], dest[0], dest[1], dest[2], dest[3],Srcport, Destport,
@@ -192,9 +212,9 @@ public class Main {
     }
     private static void writeCsvHeader() {
 		try {
-			FileWriter fileWriter = new FileWriter("/Users/shivam/Modbusdata.csv");
+			FileWriter fileWriter = new FileWriter("/Users/shivam/Modbusdata_07.csv");
 			fileWriter.append("\"sourceIP\",\"DestIP\",\"SourcePort\",\"destPort\",\"ProtocolIdentif\",\"UnitIdentif\","
-					+ "\"TransIdentif\",\"FuncCode\",\"Refno\",\"WriteData\",\"RespData\"");
+					+ "\"TransIdentif\",\"FuncCode\",\"Refno\",\"WriteData\",\"RespData\",\"Alarm_speed\",\"Alarm_water_level\"");
 			fileWriter.append("\n");
 			fileWriter.flush();
 			fileWriter.close();
@@ -207,7 +227,7 @@ public class Main {
 	private static void writepackets(CsvDataCollector packet) {
 		// TODO Auto-generated method stub
 		try {
-			FileWriter fileWriter = new FileWriter("/Users/shivam/Modbusdata.csv", true);
+			FileWriter fileWriter = new FileWriter("/Users/shivam/Modbusdata_07.csv", true);
 			fileWriter.append(String.valueOf(packet));
 			fileWriter.append("\n");
 			fileWriter.flush();
